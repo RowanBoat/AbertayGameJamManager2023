@@ -24,6 +24,7 @@ public class UIController : MonoBehaviour
 
     }
 
+
     public void StartGame()
     {
         MainMenu.SetActive(false);
@@ -34,6 +35,12 @@ public class UIController : MonoBehaviour
     {
         MainMenu.SetActive(false);
         CreditsScreen.SetActive(true);
+    }
+
+    public void DifficultySelection(int difficulty)
+    {
+        HowToPlayScreen.SetActive(false);
+        // START GAME HERE: Easy = 1; Normal = 2; Hard = 3
     }
 
     public void ReturnToMainMenu()
