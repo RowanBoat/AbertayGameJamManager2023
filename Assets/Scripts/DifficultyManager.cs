@@ -29,5 +29,6 @@ public class DifficultyManager : MonoBehaviour
                 m_health = 0;
                 break;
         }
+
     }
 }
