@@ -23,17 +23,20 @@ public class JamController : MonoBehaviour
     {
         float dt = Time.deltaTime;
         Ray ray = m_camera.ScreenPointToRay(Input.mousePosition);
-        RaycastHit2D[] hits;
+        //RaycastHit[] hits;
+        Collider2D[] hits;
 
         // LMB raycast interaction
         if (Input.GetMouseButtonDown(0))
         {
-            hits = Physics2D.GetRayIntersectionAll(ray, Mathf.Infinity, LayerMask.GetMask("UI"));
+            //hits = Physics.RaycastAll(ray, 100, LayerMask.GetMask("UI"));
+            hits = Physics2D.OverlapPointAll(m_camera.ScreenToWorldPoint(Input.mousePosition));
+            //Debug.DrawLine(ray.origin, ray.direction * 100, Color.green, 1);
             if (hits.Length != 0)
             {
-                foreach (RaycastHit2D hit in hits)
+                foreach (Collider2D hit in hits)
                 {
-                    m_jammer = hit.collider.gameObject.GetComponent<Jammer>();
+                    m_jammer = hit/*.collider*/.gameObject.GetComponent<Jammer>();
                     if (m_jammer != null)
                     {
                         // Open menu for Jammer stats
