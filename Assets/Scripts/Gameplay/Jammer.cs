@@ -184,7 +184,7 @@ public class Jammer : MonoBehaviour
         }
         else if (m_shouldBeMoving)
         {
-            transform.position = Vector2.MoveTowards(transform.position, m_targetLocation, 5.0f * dt);
+            transform.position = Vector2.MoveTowards(transform.position, m_targetLocation, 2.5f * dt);
             Vector2 vec2 = new Vector2(transform.position.x, transform.position.y);
             if ((m_targetLocation - vec2).magnitude < 0.1)
             {

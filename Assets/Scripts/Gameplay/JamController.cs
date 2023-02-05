@@ -6,6 +6,8 @@ public class JamController : MonoBehaviour
 {
     public Camera m_camera;
     private Vector3 m_camPosition;
+    public GameObject m_jammerMenu;
+    private Jammer m_jammer;
     [SerializeField] public const float m_camSpeed = 7.5f;
     [SerializeField] public const float m_sprintSpeed = 15.0f;
 
@@ -13,6 +15,7 @@ public class JamController : MonoBehaviour
     void Start()
     {
         m_camPosition = m_camera.transform.position;
+        m_jammerMenu.SetActive(false);
     }
 
     // Update is called once per frame
@@ -20,38 +23,28 @@ public class JamController : MonoBehaviour
     {
         float dt = Time.deltaTime;
         Ray ray = m_camera.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-
-        // Pause Button
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-
-        }
+        RaycastHit2D[] hits;
 
         // LMB raycast interaction
         if (Input.GetMouseButtonDown(0))
         {
-            if (Physics.Raycast(ray, out hit))
+            hits = Physics2D.GetRayIntersectionAll(ray, Mathf.Infinity, LayerMask.GetMask("UI"));
+            if (hits.Length != 0)
             {
-                Jammer jammer = hit.collider.gameObject.GetComponent<Jammer>();
-                if (jammer != null)
+                foreach (RaycastHit2D hit in hits)
                 {
-                    // Open menu for Jammer stats
-
+                    m_jammer = hit.collider.gameObject.GetComponent<Jammer>();
+                    if (m_jammer != null)
+                    {
+                        // Open menu for Jammer stats
+                        m_jammerMenu.transform.position = m_jammer.transform.position;
+                        m_jammerMenu.SetActive(true);
+                    }
                 }
             }
-        }
-        // RMB raycast interaction
-        if (Input.GetMouseButtonDown(1))
-        {
-            if (Physics.Raycast(ray, out hit))
+            else
             {
-                Jammer jammer = hit.collider.gameObject.GetComponent<Jammer>();
-                if (jammer != null)
-                {
-                    // Open menu for Jammer interaction
-
-                }
+                CloseJammerMenu(0);
             }
         }
 
@@ -68,5 +61,18 @@ public class JamController : MonoBehaviour
 
         if (m_camera.transform.position != m_camPosition)
             m_camera.transform.position = m_camPosition;
+    }
+
+    public void CloseJammerMenu(int val)
+    {
+        switch(val)
+        {
+            case 1: if (m_jammer) m_jammer.m_hungry -= 3; break;
+            case 2: if (m_jammer) m_jammer.m_motivated += 5; break;
+            case 3: if (m_jammer) m_jammer.m_sleepy -= 6; break;
+            case 4: if (m_jammer) Destroy(m_jammer); break;
+            default: break;
+        }
+        m_jammerMenu.SetActive(false);
     }
 }
