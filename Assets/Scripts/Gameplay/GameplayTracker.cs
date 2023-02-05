@@ -20,9 +20,13 @@ public class GameplayTracker : MonoBehaviour
         //StartTimer(0);
 
         DifficultyManager[] difficultyManager = GameObject.FindObjectsOfType<DifficultyManager>();
-        SetStartingHealth(difficultyManager[0].m_health);
-        StartTimer(difficultyManager[0].m_time);
-        Destroy(difficultyManager[0].gameObject);
+        if (difficultyManager.Length != 0)
+        {         
+            SetStartingHealth(difficultyManager[0].m_health);
+            StartTimer(difficultyManager[0].m_time);
+            Destroy(difficultyManager[0].gameObject);
+        }
+
     }
 
     // Update is called once per frame
