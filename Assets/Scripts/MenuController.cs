@@ -48,6 +48,7 @@ public class MenuController : MonoBehaviour
         m_background.SetActive(false);
         difficultyManager[0].SetDifficulty(difficulty);
         SceneManager.LoadScene("Level", LoadSceneMode.Single);
+        DontDestroyOnLoad(difficultyManager[0]);
     }
 
     public void ReturnToMainMenu()

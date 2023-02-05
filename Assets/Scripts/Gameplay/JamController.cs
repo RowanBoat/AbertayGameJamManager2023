@@ -68,7 +68,5 @@ public class JamController : MonoBehaviour
 
         if (m_camera.transform.position != m_camPosition)
             m_camera.transform.position = m_camPosition;
-
-
     }
 }
