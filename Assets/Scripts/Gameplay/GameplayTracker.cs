@@ -15,10 +15,6 @@ public class GameplayTracker : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        // Test
-        SetStartingHealth(3);
-        StartTimer(180);
-
         DifficultyManager[] difficultyManager = GameObject.FindObjectsOfType<DifficultyManager>();
         if (difficultyManager.Length != 0)
         {         
@@ -26,6 +22,12 @@ public class GameplayTracker : MonoBehaviour
             SetStartingHealth(difficultyManager[0].m_health);
             StartTimer(difficultyManager[0].m_time);
             Destroy(difficultyManager[0].gameObject);
+        }
+        // Test
+        else
+        {
+            SetStartingHealth(5);
+            StartTimer(180);
         }
     }
 

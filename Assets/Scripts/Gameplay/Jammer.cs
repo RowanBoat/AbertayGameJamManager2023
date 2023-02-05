@@ -31,6 +31,7 @@ public class Jammer : MonoBehaviour
 
     private Vector2 m_targetLocation;
     private bool m_shouldBeMoving = false;
+    private bool m_stayStill = false;
 
     private float m_eventChanceTimer;
     private GameplayTracker m_gameTracker;
@@ -151,45 +152,48 @@ public class Jammer : MonoBehaviour
         }
 
         // Movement
-        Rigidbody2D jammerBody = gameObject.GetComponent<Rigidbody2D>();
-        bool stationary = (Mathf.Abs(jammerBody.velocity.x) < 0.001f && Mathf.Abs(jammerBody.velocity.y) < 0.001f);
-
-        if (stationary && !m_shouldBeMoving)
+        if (!m_stayStill)
         {
-            m_targetLocation = gameObject.transform.position;
-            float targetX = 0;
-            bool pathClear = false;
+            Rigidbody2D jammerBody = gameObject.GetComponent<Rigidbody2D>();
+            bool stationary = (Mathf.Abs(jammerBody.velocity.x) < 0.001f && Mathf.Abs(jammerBody.velocity.y) < 0.001f);
 
-            while ((targetX > -2 && targetX < 2) || !pathClear)
+            if (stationary && !m_shouldBeMoving)
             {
-                targetX = Random.Range(-7.5f, 7.5f);
-                m_targetLocation.x += targetX;
+                m_targetLocation = gameObject.transform.position;
+                float targetX = 0;
+                bool pathClear = false;
 
-                Vector2 pos = gameObject.transform.position + new Vector3(0, 1, 0);
-                Vector2 dir = (m_targetLocation - pos) + new Vector2(0, 1);
-
-                RaycastHit2D[] hits = Physics2D.RaycastAll(pos, dir.normalized, Mathf.Abs(targetX) * 1.2f);
-                Debug.DrawRay(pos, dir, Color.green, 1, false);
-                foreach (RaycastHit2D hit in hits)
+                while ((targetX > -2 && targetX < 2) || !pathClear)
                 {
-                    if (hit.rigidbody != null && hit.rigidbody != jammerBody)
+                    targetX = Random.Range(-7.5f, 7.5f);
+                    m_targetLocation.x += targetX;
+
+                    Vector2 pos = gameObject.transform.position;
+                    Vector2 dir = (m_targetLocation - pos);
+
+                    RaycastHit2D[] hits = Physics2D.RaycastAll(pos, dir.normalized, Mathf.Abs(targetX) * 1.2f);
+                    Debug.DrawRay(pos, dir, Color.green, 1, false);
+                    foreach (RaycastHit2D hit in hits)
                     {
-                        pathClear = false;
-                        break;
+                        if (hit.rigidbody != null && hit.rigidbody != jammerBody)
+                        {
+                            pathClear = false;
+                            break;
+                        }
+                        else
+                            pathClear = true;
                     }
-                    else
-                        pathClear = true;
                 }
+                m_shouldBeMoving = true;
             }
-            m_shouldBeMoving = true;
-        }
-        else if (m_shouldBeMoving)
-        {
-            transform.position = Vector2.MoveTowards(transform.position, m_targetLocation, 2.0f * dt);
-            Vector2 vec2 = new Vector2(transform.position.x, transform.position.y);
-            if ((m_targetLocation - vec2).magnitude < 0.1)
+            else if (m_shouldBeMoving)
             {
-                m_shouldBeMoving = false;
+                transform.position = Vector2.MoveTowards(transform.position, m_targetLocation, 2.5f * dt);
+                Vector2 vec2 = new Vector2(transform.position.x, transform.position.y);
+                if ((m_targetLocation - vec2).magnitude < 0.1)
+                {
+                    m_shouldBeMoving = false;
+                }
             }
         }
     }
@@ -197,5 +201,10 @@ public class Jammer : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision)
     {
         m_shouldBeMoving = false;
+    }
+
+    public void SetStayStill(bool val)
+    {
+        m_stayStill = val;
     }
 }
