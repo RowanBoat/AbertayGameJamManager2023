@@ -1,3 +1,4 @@
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -34,9 +35,10 @@ public class Jammer : MonoBehaviour
     public float m_motivatedTimeMax = 10.0f;
     float m_motivatedTime = 0;
     public Trait m_trait = 0;
-    [SerializeField] private JammerState m_jammerState = 0;
+    public JammerState m_jammerState {get;private set;}
 
     public SpriteRenderer m_spriteRenderer;
+    public SpriteRenderer[] m_emotes;
 
     private Vector2 m_targetLocation;
     private bool m_shouldBeMoving = false;
@@ -45,6 +47,8 @@ public class Jammer : MonoBehaviour
     private float m_eventChanceTimer;
     public float m_lifeCountdownMax = 15.0f;
     float m_lifeCountdown = 0;
+    public TextMeshProUGUI m_countdown;
+
 
     private GameplayTracker m_gameTracker;
 
@@ -68,6 +72,11 @@ public class Jammer : MonoBehaviour
         {
             m_gameTracker = gameTracker[0];
         }
+
+        foreach(SpriteRenderer sprite in m_emotes)
+        {
+            sprite.gameObject.SetActive(false);
+        }
     }
 
     // Update is called once per frame
@@ -77,11 +86,25 @@ public class Jammer : MonoBehaviour
 
         if (m_jammerState != JammerState.Default)
         {
-            m_lifeCountdown-=dt;
-            if(m_lifeCountdown <= 0)
+            if (!m_countdown.gameObject.activeSelf)
+                m_countdown.gameObject.SetActive(true);
+
+            Vector2 viewportPosition = Camera.main.WorldToViewportPoint(transform.position);
+            Vector2 finalPosition = new Vector2(viewportPosition.x * Screen.width, (viewportPosition.y + 0.15f) * Screen.height) - (m_countdown.gameObject.GetComponent<RectTransform>().rect.size / 2);
+            m_countdown.gameObject.GetComponent<RectTransform>().anchoredPosition = new Vector2(finalPosition.x, finalPosition.y);
+
+            m_lifeCountdown -= dt;
+            m_countdown.text = Mathf.RoundToInt(m_lifeCountdown).ToString();
+            if (m_lifeCountdown <= 0)
             {
                 m_gameTracker.DamagePlayer();
                 m_jammerState = JammerState.Default;
+                m_countdown.gameObject.SetActive(false);
+
+                foreach (SpriteRenderer sprite in m_emotes)
+                {
+                    sprite.gameObject.SetActive(false);
+                }
             }
         }
 
@@ -126,6 +149,8 @@ public class Jammer : MonoBehaviour
             {
                 Debug.Log("Student Fell Asleep");
                 m_jammerState = JammerState.Asleep;
+                int i = (int)JammerState.Asleep;
+                m_emotes[i - 1].gameObject.SetActive(true);
                 m_lifeCountdown = m_lifeCountdownMax;
                 return;
             }
@@ -133,6 +158,8 @@ public class Jammer : MonoBehaviour
             {
                 Debug.Log("Student Eating At Desk");
                 m_jammerState = JammerState.Eating;
+                int i = (int)JammerState.Eating;
+                m_emotes[i - 1].gameObject.SetActive(true);
                 m_lifeCountdown = m_lifeCountdownMax;
                 return;
             }
@@ -140,6 +167,8 @@ public class Jammer : MonoBehaviour
             {
                 Debug.Log("Student Is Being Rowdy");
                 m_jammerState = JammerState.Annoying;
+                int i = (int)JammerState.Annoying;
+                m_emotes[i - 1].gameObject.SetActive(true);
                 m_lifeCountdown = m_lifeCountdownMax;
                 return;
             }
@@ -150,6 +179,8 @@ public class Jammer : MonoBehaviour
                 {
                     Debug.Log("Student Is Drunk");
                     m_jammerState = JammerState.Drunk;
+                    int i = (int)JammerState.Drunk;
+                    m_emotes[i - 1].gameObject.SetActive(true);
                     m_lifeCountdown = m_lifeCountdownMax;
                     return;
                 }
@@ -158,6 +189,8 @@ public class Jammer : MonoBehaviour
             {
                 Debug.Log("Student Is Drunk");
                 m_jammerState = JammerState.Drunk;
+                int i = (int)JammerState.Drunk;
+                m_emotes[i - 1].gameObject.SetActive(true);
                 m_lifeCountdown = m_lifeCountdownMax;
                 return;
             }
@@ -168,6 +201,8 @@ public class Jammer : MonoBehaviour
                 {
                     Debug.Log("Student Has Gone AWOL");
                     m_jammerState = JammerState.Wandering;
+                    int i = (int)JammerState.Wandering;
+                    m_emotes[i - 1].gameObject.SetActive(true);
                     m_lifeCountdown = m_lifeCountdownMax;
                     return;
                 }
@@ -176,6 +211,8 @@ public class Jammer : MonoBehaviour
             {
                 Debug.Log("Student Has Gone AWOL");
                 m_jammerState = JammerState.Wandering;
+                int i = (int)JammerState.Wandering;
+                m_emotes[i - 1].gameObject.SetActive(true);
                 m_lifeCountdown = m_lifeCountdownMax;
                 return;
             }
@@ -205,7 +242,7 @@ public class Jammer : MonoBehaviour
                     Debug.DrawRay(pos, dir, Color.green, 1, false);
                     foreach (RaycastHit2D hit in hits)
                     {
-                        if (hit.rigidbody != null && hit.rigidbody != jammerBody)
+                        if (hit.rigidbody != null && hit.rigidbody != jammerBody && hit.rigidbody.GetComponent<Jammer>() == null)
                         {
                             pathClear = false;
                             break;
@@ -213,6 +250,7 @@ public class Jammer : MonoBehaviour
                         else
                             pathClear = true;
                     }
+                    GetComponentInChildren<SpriteRenderer>().transform.localScale = new(dir.normalized.x * 2, 2, 1);
                 }
                 m_shouldBeMoving = true;
             }
@@ -236,5 +274,14 @@ public class Jammer : MonoBehaviour
     public void SetStayStill(bool val)
     {
         m_stayStill = val;
+        if (val)
+            GetComponentInChildren<Animator>().StartPlayback();
+        else
+            GetComponentInChildren<Animator>().StopPlayback();
+    }
+
+    public void SetJammerState(JammerState val)
+    {
+        m_jammerState = val;
     }
 }

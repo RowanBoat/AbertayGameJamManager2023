@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class DifficultyManager : MonoBehaviour
 {
-    public int m_time { get; private set; }
-    public int m_health { get; private set; }
+    public float m_time { get; set; }
+    public int m_health { get; set; }
 
     public void SetDifficulty(int diff)
     {

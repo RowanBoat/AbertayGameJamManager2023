@@ -6,8 +6,10 @@ using UnityEngine.UI;
 
 public class GameplayTracker : MonoBehaviour
 {
+    private float m_initTime;
     private float m_timeLeft;
     public bool m_timerOn;
+    public UIController m_ui;
 
     public int m_playerMaxHealth { get; private set; }
     public int m_playerHealth { get; private set; }
@@ -41,6 +43,8 @@ public class GameplayTracker : MonoBehaviour
             if (m_playerHealth <= 0)
             {
                 Debug.Log("You were banned from holding another Jam!");
+                m_ui.EndMenu(false);
+                Time.timeScale = 0;
                 m_timerOn = false;
                 return;
             }
@@ -49,6 +53,8 @@ public class GameplayTracker : MonoBehaviour
             if (allJammers.Length <= 0)
             {
                 Debug.Log("You sent all your Jammers home!");
+                m_ui.EndMenu(false);
+                Time.timeScale = 0;
                 m_timerOn = false;
                 return;
             }
@@ -61,6 +67,8 @@ public class GameplayTracker : MonoBehaviour
             else
             {
                 Debug.Log("You Jam was a success!");
+                m_ui.EndMenu(true);
+                Time.timeScale = 0;
                 m_timeLeft = 0;
                 m_timerOn = false;
             }
@@ -76,12 +84,12 @@ public class GameplayTracker : MonoBehaviour
         float mins = Mathf.FloorToInt(currentTime / 60);
         float secs = Mathf.FloorToInt(currentTime % 60);
 
-        return string.Format("{0:00} : {1:00}", mins, secs);
+        return string.Format("{0:00}:{1:00}", mins, secs);
     }
 
     public void StartTimer(float startTimeSecs)
     {
-        m_timeLeft = startTimeSecs;
+        m_initTime = m_timeLeft = startTimeSecs;
         m_timerOn = true;
     }
 
@@ -99,5 +107,16 @@ public class GameplayTracker : MonoBehaviour
     public void DamagePlayer()
     {
         m_playerHealth--;
+        m_ui.SecurityPopup();
+    }
+
+    public GameObject GetRestartDifficulty()
+    {
+        GameObject objToSpawn = new GameObject("DifficultyManager");
+        DifficultyManager difficultyManager = objToSpawn.AddComponent<DifficultyManager>();
+        difficultyManager.m_health = m_playerMaxHealth;
+        difficultyManager.m_time = m_initTime;
+
+        return objToSpawn;
     }
 }
