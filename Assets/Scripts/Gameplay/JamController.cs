@@ -16,8 +16,8 @@ public class JamController : MonoBehaviour
     public Slider m_motivationSlider;
     public Slider m_tirednessSlider;
     private Jammer m_jammer;
-    [SerializeField] public const float m_camSpeed = 7.5f;
-    [SerializeField] public const float m_sprintSpeed = 15.0f;
+   public const float m_camSpeed = 7.5f;
+    public const float m_sprintSpeed = 15.0f;
 
     // Start is called before the first frame update
     void Start()
@@ -30,24 +30,22 @@ public class JamController : MonoBehaviour
     void Update()
     {
         float dt = Time.deltaTime;
-        Ray ray = m_camera.ScreenPointToRay(Input.mousePosition);
-        //RaycastHit[] hits;
         Collider2D[] hits;
 
         // LMB raycast interaction
         if (Input.GetMouseButtonDown(0))
         {
-            //hits = Physics.RaycastAll(ray, 100, LayerMask.GetMask("UI"));
+            // Find stuff under the mouse cursor
             hits = Physics2D.OverlapPointAll(m_camera.ScreenToWorldPoint(Input.mousePosition));
-            //Debug.DrawLine(ray.origin, ray.direction * 100, Color.green, 1);
             if (hits.Length != 0)
             {
+                // Did we hit a Jammer?
                 foreach (Collider2D hit in hits)
                 {
-                    m_jammer = hit/*.collider*/.gameObject.GetComponent<Jammer>();
+                    m_jammer = hit.gameObject.GetComponent<Jammer>();
                     if (m_jammer != null)
                     {
-                        // Open menu for Jammer stats
+                        // Open menu for Jammer stats & Interaction
                         Vector2 viewportPosition = m_camera.WorldToViewportPoint(m_jammer.transform.position);
 
                         Vector2 finalPosition = new Vector2(viewportPosition.x * Screen.width, viewportPosition.y * Screen.height) - (m_jammerMenu.rect.size / 2);
@@ -63,11 +61,13 @@ public class JamController : MonoBehaviour
             }
             else
             {
+                // Make sure to only close with int 0 when we're not pressing ui buttons
                 if (!IsPointerOverUIElement(GetEventSystemRaycastResults()))
                     CloseJammerMenu(0);
             }
         }
 
+        // If the jammer exists, use it to update the stats UI
         if (m_jammer != null)
         {
             m_hungerSlider.value = m_jammer.m_hungry / 10.0f;
@@ -122,13 +122,14 @@ public class JamController : MonoBehaviour
         return false;
     }
 
-
     //Gets all event system raycast results of current mouse or touch position.
     static List<RaycastResult> GetEventSystemRaycastResults()
     {
-        PointerEventData eventData = new PointerEventData(EventSystem.current);
-        eventData.position = Input.mousePosition;
-        List<RaycastResult> raysastResults = new List<RaycastResult>();
+        PointerEventData eventData = new(EventSystem.current)
+        {
+            position = Input.mousePosition
+        };
+        List<RaycastResult> raysastResults = new();
         EventSystem.current.RaycastAll(eventData, raysastResults);
         return raysastResults;
     }
