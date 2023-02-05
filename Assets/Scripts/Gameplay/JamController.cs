@@ -56,6 +56,7 @@ public class JamController : MonoBehaviour
         }
 
         // Movement Controls - Shift to speed up.
+        m_camPosition = m_camera.transform.position;
         if (!Input.GetKey(KeyCode.LeftShift))
         {
             m_camPosition.x += Input.GetAxis("Horizontal") * m_camSpeed * dt;
@@ -65,8 +66,7 @@ public class JamController : MonoBehaviour
             m_camPosition.x += Input.GetAxis("Horizontal") * m_sprintSpeed * dt;
         }
 
-        m_camera.transform.position = m_camPosition;
-
-
+        if (m_camera.transform.position != m_camPosition)
+            m_camera.transform.position = m_camPosition;
     }
 }

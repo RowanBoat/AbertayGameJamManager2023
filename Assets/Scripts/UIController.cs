@@ -9,6 +9,8 @@ public class UIController : MonoBehaviour
     public GameObject m_pausePage;
     public GameObject m_quitPage;
     private GameplayTracker gameController;
+    public Camera m_camera;
+    private Vector3 m_camPosition;
 
     // Start is called before the first frame update
     void Start()
@@ -24,6 +26,16 @@ public class UIController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             PauseGame(true);
+        }
+    }
+
+    public void MoveCamera(int val)
+    {
+        m_camPosition = m_camera.transform.position;
+        if (Mathf.Abs(Input.GetAxis("Horizontal")) < 0.01)
+        {
+            m_camPosition.x += val * 3;
+            m_camera.transform.position = m_camPosition;
         }
     }
 
