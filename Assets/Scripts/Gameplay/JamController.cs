@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
@@ -16,7 +17,7 @@ public class JamController : MonoBehaviour
     public Slider m_motivationSlider;
     public Slider m_tirednessSlider;
     private Jammer m_jammer;
-   public const float m_camSpeed = 7.5f;
+    public const float m_camSpeed = 7.5f;
     public const float m_sprintSpeed = 15.0f;
 
     // Start is called before the first frame update
@@ -86,6 +87,11 @@ public class JamController : MonoBehaviour
             m_camPosition.x += Input.GetAxis("Horizontal") * m_sprintSpeed * dt;
         }
 
+        if (m_camPosition.x < -21.0f)
+            m_camPosition.x = -21.0f;
+        else if (m_camPosition.x > 21.0f)
+            m_camPosition.x = 21.0f;
+
         if (m_camera.transform.position != m_camPosition)
             m_camera.transform.position = m_camPosition;
     }
@@ -98,15 +104,59 @@ public class JamController : MonoBehaviour
 
             switch (val)
             {
-                case 1: m_jammer.m_hungry -= 3; break;
-                case 2: m_jammer.m_motivated += 5; break;
-                case 3: m_jammer.m_sleepy -= 6; break;
-                case 4: Destroy(m_jammer.gameObject); break;
-                default: break;
+                case 1:
+                    m_jammer.m_hungry -= 3;
+                    if (m_jammer.m_jammerState == Jammer.JammerState.Eating)
+                    {
+                        m_jammer.SetJammerState(Jammer.JammerState.Default);
+                        m_jammer.m_countdown.gameObject.SetActive(false);
+                    }
+                    ClearJammerEmotes();
+                    break;
+                case 2:
+                    m_jammer.m_motivated += 5;
+                    if (m_jammer.m_jammerState == Jammer.JammerState.Annoying)
+                    {
+                        m_jammer.m_countdown.gameObject.SetActive(false);
+                        m_jammer.SetJammerState(Jammer.JammerState.Default);
+                    }
+                    ClearJammerEmotes();
+                    break;
+                case 3:
+                    m_jammer.m_sleepy -= 6;
+                    if (m_jammer.m_jammerState == Jammer.JammerState.Asleep)
+                    {
+                        m_jammer.m_countdown.gameObject.SetActive(false);
+                        m_jammer.SetJammerState(Jammer.JammerState.Default);
+                    }
+                    ClearJammerEmotes();
+                    break;
+                case 4:
+                    ClearJammerEmotes();
+                    m_jammer.m_countdown.gameObject.SetActive(false);
+                    Destroy(m_jammer.gameObject);
+                    break;
+                case 5:
+                    if (m_jammer.m_jammerState == Jammer.JammerState.Wandering)
+                    {
+                        m_jammer.SetJammerState(Jammer.JammerState.Default);
+                        m_jammer.m_countdown.gameObject.SetActive(false);
+                    }
+                    ClearJammerEmotes();
+                    break;
+                default:
+                    break;
             }
             m_jammer = null;
         }
         m_jammerMenu.gameObject.SetActive(false);
+    }
+    private void ClearJammerEmotes()
+    {
+        foreach (SpriteRenderer sprite in m_jammer.m_emotes)
+        {
+            sprite.gameObject.SetActive(false);
+        }
     }
 
     // https://forum.unity.com/threads/how-to-detect-if-mouse-is-over-ui.1025533/
