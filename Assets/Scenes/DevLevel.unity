@@ -3785,6 +3785,7 @@ MonoBehaviour:
   m_pauseMenu: {fileID: 1330767556}
   m_pausePage: {fileID: 496473598}
   m_quitPage: {fileID: 1078796039}
+  m_camera: {fileID: 0}
 --- !u!1 &1518614906
 GameObject:
   m_ObjectHideFlags: 0
@@ -5283,8 +5284,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_sleepy: 4
+  m_sleepyTimeMax: 20
   m_hungry: 10
+  m_hungryTimeMax: 25
   m_motivated: 3
+  m_motivatedTimeMax: 10
   m_trait: 2
   m_spriteRenderer: {fileID: 0}
 --- !u!4 &2036956242
@@ -5316,7 +5320,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: 1.053895}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -5327,7 +5331,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 1, y: 2.053895}
   m_EdgeRadius: 0
 --- !u!50 &2036956244
 Rigidbody2D:

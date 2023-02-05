@@ -37,19 +37,26 @@ public class GameplayTracker : MonoBehaviour
             // Lose Cond.
             if (m_playerHealth <= 0)
             {
-                Debug.Log("YOU LOSE!");
+                Debug.Log("You were banned from holding another Jam!");
                 m_timerOn = false;
                 return;
             }
 
-            // Win Cond.
-            if (m_timeLeft > 0)
+            Jammer[] allJammers = GameObject.FindObjectsOfType<Jammer>();
+            if (allJammers.Length <= 0)
+            {
+                Debug.Log("You sent all your Jammers home!");
+                m_timerOn = false;
+                return;
+            }
+                // Win Cond.
+                if (m_timeLeft > 0)
             {
                 m_timeLeft -= Time.deltaTime;
             }
             else
             {
-                Debug.Log("YOU WIN!");
+                Debug.Log("You Jam was a success!");
                 m_timeLeft = 0;
                 m_timerOn = false;
             }

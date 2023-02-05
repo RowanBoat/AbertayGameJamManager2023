@@ -156,7 +156,7 @@ public class Jammer : MonoBehaviour
 
         if (stationary && !m_shouldBeMoving)
         {
-            m_targetLocation = new Vector2(transform.position.x, transform.position.y);
+            m_targetLocation = gameObject.transform.position;
             float targetX = 0;
             bool pathClear = false;
 
@@ -165,10 +165,11 @@ public class Jammer : MonoBehaviour
                 targetX = Random.Range(-7.5f, 7.5f);
                 m_targetLocation.x += targetX;
 
-                Vector2 pos = gameObject.transform.position;
-                Vector2 dir = m_targetLocation - pos;
+                Vector2 pos = gameObject.transform.position + new Vector3(0, 1, 0);
+                Vector2 dir = (m_targetLocation - pos) + new Vector2(0, 1);
 
                 RaycastHit2D[] hits = Physics2D.RaycastAll(pos, dir.normalized, Mathf.Abs(targetX) * 1.2f);
+                Debug.DrawRay(pos, dir, Color.green, 1, false);
                 foreach (RaycastHit2D hit in hits)
                 {
                     if (hit.rigidbody != null && hit.rigidbody != jammerBody)
