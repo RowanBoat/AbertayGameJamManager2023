@@ -13,6 +13,15 @@ public class Jammer : MonoBehaviour
         Sleepy = 4,
         Wanderer = 5
     };
+    public enum JammerState
+    {
+        Default = 0,
+        Annoying = 1,
+        Asleep = 2,
+        Drunk = 3,
+        Eating = 4,
+        Wandering = 5
+    };
 
     //Members
     [Range(0, 10)] public int m_sleepy = 0;
@@ -26,6 +35,7 @@ public class Jammer : MonoBehaviour
     public float m_motivatedTimeMax = 10.0f;
     float m_motivatedTime = 0;
     [SerializeField] public Trait m_trait = 0;
+    [SerializeField] private JammerState m_jammerState = 0;
 
     public SpriteRenderer m_spriteRenderer;
 
@@ -99,54 +109,54 @@ public class Jammer : MonoBehaviour
         {
             m_eventChanceTimer = 1.0f;
 
-            if (m_sleepy >= 10 && Random.Range(1, 50) == 1)
+            if (m_sleepy >= 10 && m_jammerState == JammerState.Default && Random.Range(1, 50) == 1)
             {
                 Debug.Log("Student Fell Asleep");
-                m_gameTracker.DamagePlayer();
+                m_jammerState = JammerState.Asleep;
                 return;
             }
-            if (m_hungry >= 10 && Random.Range(1, 50) == 1)
+            if (m_hungry >= 10 && m_jammerState == JammerState.Default && Random.Range(1, 50) == 1)
             {
                 Debug.Log("Student Eating At Desk");
-                m_gameTracker.DamagePlayer();
+                m_jammerState = JammerState.Eating;
                 return;
             }
-            if (m_motivated <= 0 && Random.Range(1, 50) == 1)
+            if (m_motivated <= 0 && m_jammerState == JammerState.Default && Random.Range(1, 50) == 1)
             {
                 Debug.Log("Student Is Being Rowdy");
-                m_gameTracker.DamagePlayer();
+                m_jammerState = JammerState.Annoying;
                 return;
             }
 
             if (m_trait == Trait.Drunk)
             {
-                if (Random.Range(1, 60) == 1)
+                if (Random.Range(1, 60) == 1 && m_jammerState == JammerState.Default)
                 {
                     Debug.Log("Student Is Drunk");
-                    m_gameTracker.DamagePlayer();
+                    m_jammerState = JammerState.Drunk;
                     return;
                 }
             }
-            else if (Random.Range(1, 240) == 1)
+            else if (Random.Range(1, 240) == 1 && m_jammerState == JammerState.Default)
             {
                 Debug.Log("Student Is Drunk");
-                m_gameTracker.DamagePlayer();
+                m_jammerState = JammerState.Drunk;
                 return;
             }
 
             if (m_trait == Trait.Wanderer)
             {
-                if (Random.Range(1, 60) == 1)
+                if (Random.Range(1, 60) == 1 && m_jammerState == JammerState.Default)
                 {
                     Debug.Log("Student Has Gone AWOL");
-                    m_gameTracker.DamagePlayer();
+                    m_jammerState = JammerState.Wandering;
                     return;
                 }
             }
-            else if (Random.Range(1, 240) == 1)
+            else if (Random.Range(1, 240) == 1 && m_jammerState == JammerState.Default)
             {
                 Debug.Log("Student Has Gone AWOL");
-                m_gameTracker.DamagePlayer();
+                m_jammerState = JammerState.Wandering;
                 return;
             }
         }
