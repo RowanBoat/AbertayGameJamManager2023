@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class Jammer : MonoBehaviour
 {
-    //TraitsEnum
+    //Enums
     public enum Trait
     {
         Default = 0,
@@ -13,26 +13,39 @@ public class Jammer : MonoBehaviour
         Sleepy = 4,
         Wanderer = 5
     };
+    public enum JammerState
+    {
+        Default = 0,
+        Annoying = 1,
+        Asleep = 2,
+        Drunk = 3,
+        Eating = 4,
+        Wandering = 5
+    };
 
     //Members
     [Range(0, 10)] public int m_sleepy = 0;
     public float m_sleepyTimeMax = 20.0f;
     float m_sleepyTime = 0;
-
     [Range(0, 10)] public int m_hungry = 0;
     public float m_hungryTimeMax = 25.0f;
     float m_hungryTime = 0;
     [Range(0, 10)] public int m_motivated = 0;
     public float m_motivatedTimeMax = 10.0f;
     float m_motivatedTime = 0;
-    [SerializeField] public Trait m_trait = 0;
+    public Trait m_trait = 0;
+    [SerializeField] private JammerState m_jammerState = 0;
 
     public SpriteRenderer m_spriteRenderer;
 
     private Vector2 m_targetLocation;
     private bool m_shouldBeMoving = false;
+    private bool m_stayStill = false;
 
     private float m_eventChanceTimer;
+    public float m_lifeCountdownMax = 15.0f;
+    float m_lifeCountdown = 0;
+
     private GameplayTracker m_gameTracker;
 
     // Start is called before the first frame update
@@ -61,6 +74,16 @@ public class Jammer : MonoBehaviour
     void Update()
     {
         float dt = Time.deltaTime;
+
+        if (m_jammerState != JammerState.Default)
+        {
+            m_lifeCountdown-=dt;
+            if(m_lifeCountdown <= 0)
+            {
+                m_gameTracker.DamagePlayer();
+                m_jammerState = JammerState.Default;
+            }
+        }
 
         // Timers
         if (m_sleepyTime > 0)
@@ -93,27 +116,31 @@ public class Jammer : MonoBehaviour
             if (m_trait == Trait.Sad)
                 m_motivatedTime -= 3;
         }
-
-        if (m_eventChanceTimer <= 0)
+        
+        // Check to trigger events every second assuming this Jammer isn't already dealing with one
+        if (m_eventChanceTimer <= 0 && m_jammerState == JammerState.Default)
         {
             m_eventChanceTimer = 1.0f;
 
             if (m_sleepy >= 10 && Random.Range(1, 50) == 1)
             {
                 Debug.Log("Student Fell Asleep");
-                m_gameTracker.DamagePlayer();
+                m_jammerState = JammerState.Asleep;
+                m_lifeCountdown = m_lifeCountdownMax;
                 return;
             }
             if (m_hungry >= 10 && Random.Range(1, 50) == 1)
             {
                 Debug.Log("Student Eating At Desk");
-                m_gameTracker.DamagePlayer();
+                m_jammerState = JammerState.Eating;
+                m_lifeCountdown = m_lifeCountdownMax;
                 return;
             }
             if (m_motivated <= 0 && Random.Range(1, 50) == 1)
             {
                 Debug.Log("Student Is Being Rowdy");
-                m_gameTracker.DamagePlayer();
+                m_jammerState = JammerState.Annoying;
+                m_lifeCountdown = m_lifeCountdownMax;
                 return;
             }
 
@@ -122,14 +149,16 @@ public class Jammer : MonoBehaviour
                 if (Random.Range(1, 60) == 1)
                 {
                     Debug.Log("Student Is Drunk");
-                    m_gameTracker.DamagePlayer();
+                    m_jammerState = JammerState.Drunk;
+                    m_lifeCountdown = m_lifeCountdownMax;
                     return;
                 }
             }
             else if (Random.Range(1, 240) == 1)
             {
                 Debug.Log("Student Is Drunk");
-                m_gameTracker.DamagePlayer();
+                m_jammerState = JammerState.Drunk;
+                m_lifeCountdown = m_lifeCountdownMax;
                 return;
             }
 
@@ -138,58 +167,63 @@ public class Jammer : MonoBehaviour
                 if (Random.Range(1, 60) == 1)
                 {
                     Debug.Log("Student Has Gone AWOL");
-                    m_gameTracker.DamagePlayer();
+                    m_jammerState = JammerState.Wandering;
+                    m_lifeCountdown = m_lifeCountdownMax;
                     return;
                 }
             }
             else if (Random.Range(1, 240) == 1)
             {
                 Debug.Log("Student Has Gone AWOL");
-                m_gameTracker.DamagePlayer();
+                m_jammerState = JammerState.Wandering;
+                m_lifeCountdown = m_lifeCountdownMax;
                 return;
             }
         }
 
         // Movement
-        Rigidbody2D jammerBody = gameObject.GetComponent<Rigidbody2D>();
-        bool stationary = (Mathf.Abs(jammerBody.velocity.x) < 0.001f && Mathf.Abs(jammerBody.velocity.y) < 0.001f);
-
-        if (stationary && !m_shouldBeMoving)
+        if (!m_stayStill)
         {
-            m_targetLocation = gameObject.transform.position;
-            float targetX = 0;
-            bool pathClear = false;
+            Rigidbody2D jammerBody = gameObject.GetComponent<Rigidbody2D>();
+            bool stationary = (Mathf.Abs(jammerBody.velocity.x) < 0.001f && Mathf.Abs(jammerBody.velocity.y) < 0.001f);
 
-            while ((targetX > -2 && targetX < 2) || !pathClear)
+            if (stationary && !m_shouldBeMoving)
             {
-                targetX = Random.Range(-7.5f, 7.5f);
-                m_targetLocation.x += targetX;
+                m_targetLocation = gameObject.transform.position;
+                float targetX = 0;
+                bool pathClear = false;
 
-                Vector2 pos = gameObject.transform.position + new Vector3(0, 1, 0);
-                Vector2 dir = (m_targetLocation - pos) + new Vector2(0, 1);
-
-                RaycastHit2D[] hits = Physics2D.RaycastAll(pos, dir.normalized, Mathf.Abs(targetX) * 1.2f);
-                Debug.DrawRay(pos, dir, Color.green, 1, false);
-                foreach (RaycastHit2D hit in hits)
+                while ((targetX > -2 && targetX < 2) || !pathClear)
                 {
-                    if (hit.rigidbody != null && hit.rigidbody != jammerBody)
+                    targetX = Random.Range(-7.5f, 7.5f);
+                    m_targetLocation.x += targetX;
+
+                    Vector2 pos = gameObject.transform.position;
+                    Vector2 dir = (m_targetLocation - pos);
+
+                    RaycastHit2D[] hits = Physics2D.RaycastAll(pos, dir.normalized, Mathf.Abs(targetX) * 1.2f);
+                    Debug.DrawRay(pos, dir, Color.green, 1, false);
+                    foreach (RaycastHit2D hit in hits)
                     {
-                        pathClear = false;
-                        break;
+                        if (hit.rigidbody != null && hit.rigidbody != jammerBody)
+                        {
+                            pathClear = false;
+                            break;
+                        }
+                        else
+                            pathClear = true;
                     }
-                    else
-                        pathClear = true;
                 }
+                m_shouldBeMoving = true;
             }
-            m_shouldBeMoving = true;
-        }
-        else if (m_shouldBeMoving)
-        {
-            transform.position = Vector2.MoveTowards(transform.position, m_targetLocation, 2.5f * dt);
-            Vector2 vec2 = new Vector2(transform.position.x, transform.position.y);
-            if ((m_targetLocation - vec2).magnitude < 0.1)
+            else if (m_shouldBeMoving)
             {
-                m_shouldBeMoving = false;
+                transform.position = Vector2.MoveTowards(transform.position, m_targetLocation, 2.5f * dt);
+                Vector2 vec2 = new(transform.position.x, transform.position.y);
+                if ((m_targetLocation - vec2).magnitude < 0.1)
+                {
+                    m_shouldBeMoving = false;
+                }
             }
         }
     }
@@ -197,5 +231,10 @@ public class Jammer : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision)
     {
         m_shouldBeMoving = false;
+    }
+
+    public void SetStayStill(bool val)
+    {
+        m_stayStill = val;
     }
 }

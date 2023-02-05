@@ -15,10 +15,7 @@ public class GameplayTracker : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        // Test
-        SetStartingHealth(3);
-        StartTimer(180);
-
+        // Set HP and Time based on difficulty
         DifficultyManager[] difficultyManager = GameObject.FindObjectsOfType<DifficultyManager>();
         if (difficultyManager.Length != 0)
         {         
@@ -27,6 +24,12 @@ public class GameplayTracker : MonoBehaviour
             StartTimer(difficultyManager[0].m_time);
             Destroy(difficultyManager[0].gameObject);
         }
+        // Test
+        else
+        {
+            SetStartingHealth(5);
+            StartTimer(180);
+        }
     }
 
     // Update is called once per frame
@@ -34,7 +37,7 @@ public class GameplayTracker : MonoBehaviour
     {
         if (m_timerOn)
         {
-            // Lose Cond.
+            // Lose Conditions
             if (m_playerHealth <= 0)
             {
                 Debug.Log("You were banned from holding another Jam!");
@@ -49,8 +52,9 @@ public class GameplayTracker : MonoBehaviour
                 m_timerOn = false;
                 return;
             }
-                // Win Cond.
-                if (m_timeLeft > 0)
+     
+            // Win Cond.
+            if (m_timeLeft > 0)
             {
                 m_timeLeft -= Time.deltaTime;
             }
@@ -63,6 +67,8 @@ public class GameplayTracker : MonoBehaviour
         }
     }
 
+
+    // Timer text for UI
     public string GetTimerText()
     {
         float currentTime = m_timeLeft + 1;
