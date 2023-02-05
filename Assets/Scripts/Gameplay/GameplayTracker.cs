@@ -16,8 +16,8 @@ public class GameplayTracker : MonoBehaviour
     void Start()
     {
         // Test
-        //SetStartingHealth(0);
-        //StartTimer(0);
+        SetStartingHealth(3);
+        StartTimer(180);
 
         DifficultyManager[] difficultyManager = GameObject.FindObjectsOfType<DifficultyManager>();
         if (difficultyManager.Length != 0)
@@ -80,5 +80,10 @@ public class GameplayTracker : MonoBehaviour
     public void SetTimerPaused(bool val)
     {
         m_timerOn = val;
+    }
+
+    public void DamagePlayer()
+    {
+        m_playerHealth--;
     }
 }
