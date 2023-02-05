@@ -1,12 +1,7 @@
 using System.Collections.Generic;
-using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.AI;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using static UnityEditor.Experimental.GraphView.GraphView;
-using static UnityEngine.GraphicsBuffer;
 
 public class JamController : MonoBehaviour
 {
@@ -87,10 +82,10 @@ public class JamController : MonoBehaviour
             m_camPosition.x += Input.GetAxis("Horizontal") * m_sprintSpeed * dt;
         }
 
-        if (m_camPosition.x < -21.0f)
-            m_camPosition.x = -21.0f;
-        else if (m_camPosition.x > 21.0f)
-            m_camPosition.x = 21.0f;
+        if (m_camPosition.x < -21.75f)
+            m_camPosition.x = -21.75f;
+        else if (m_camPosition.x > 21.75f)
+            m_camPosition.x = 21.75f;
 
         if (m_camera.transform.position != m_camPosition)
             m_camera.transform.position = m_camPosition;
@@ -110,8 +105,8 @@ public class JamController : MonoBehaviour
                     {
                         m_jammer.SetJammerState(Jammer.JammerState.Default);
                         m_jammer.m_countdown.gameObject.SetActive(false);
+                        ClearJammerEmotes();
                     }
-                    ClearJammerEmotes();
                     break;
                 case 2:
                     m_jammer.m_motivated += 5;
@@ -119,8 +114,8 @@ public class JamController : MonoBehaviour
                     {
                         m_jammer.m_countdown.gameObject.SetActive(false);
                         m_jammer.SetJammerState(Jammer.JammerState.Default);
+                        ClearJammerEmotes();
                     }
-                    ClearJammerEmotes();
                     break;
                 case 3:
                     m_jammer.m_sleepy -= 6;
@@ -128,8 +123,8 @@ public class JamController : MonoBehaviour
                     {
                         m_jammer.m_countdown.gameObject.SetActive(false);
                         m_jammer.SetJammerState(Jammer.JammerState.Default);
+                        ClearJammerEmotes();
                     }
-                    ClearJammerEmotes();
                     break;
                 case 4:
                     ClearJammerEmotes();
@@ -141,8 +136,8 @@ public class JamController : MonoBehaviour
                     {
                         m_jammer.SetJammerState(Jammer.JammerState.Default);
                         m_jammer.m_countdown.gameObject.SetActive(false);
+                        ClearJammerEmotes();
                     }
-                    ClearJammerEmotes();
                     break;
                 default:
                     break;
