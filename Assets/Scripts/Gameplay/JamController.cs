@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -5,7 +6,8 @@ public class JamController : MonoBehaviour
 {
     public Camera m_camera;
     private Vector3 m_camPosition;
-    [SerializeField] private const float m_sprintSpeed = 5.0f;
+    [SerializeField] public const float m_camSpeed = 7.5f;
+    [SerializeField] public const float m_sprintSpeed = 15.0f;
 
     // Start is called before the first frame update
     void Start()
@@ -20,12 +22,23 @@ public class JamController : MonoBehaviour
         Ray ray = m_camera.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
+        // Pause Button
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+
+        }
+
         // LMB raycast interaction
         if (Input.GetMouseButtonDown(0))
         {
             if (Physics.Raycast(ray, out hit))
             {
-                // Open menu for Jammer interaction
+                Jammer jammer = hit.collider.gameObject.GetComponent<Jammer>();
+                if (jammer != null)
+                {
+                    // Open menu for Jammer stats
+
+                }
             }
         }
         // RMB raycast interaction
@@ -33,7 +46,12 @@ public class JamController : MonoBehaviour
         {
             if (Physics.Raycast(ray, out hit))
             {
-                // Open menu for Jammer interaction
+                Jammer jammer = hit.collider.gameObject.GetComponent<Jammer>();
+                if (jammer != null)
+                {
+                    // Open menu for Jammer interaction
+
+                }
             }
         }
 
@@ -41,7 +59,7 @@ public class JamController : MonoBehaviour
         m_camPosition = m_camera.transform.position;
         if (!Input.GetKey(KeyCode.LeftShift))
         {
-            m_camPosition.x += Input.GetAxis("Horizontal") * dt;
+            m_camPosition.x += Input.GetAxis("Horizontal") * m_camSpeed * dt;
         }
         else
         {
